@@ -11,6 +11,19 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tap Counter">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232f5cff'/><circle cx='32' cy='32' r='17' fill='none' stroke='%23fff' stroke-width='5'/><circle cx='32' cy='32' r='5.5' fill='%23fff'/></svg>">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
+<script>
+/* The manifest is only meaningful over http(s); adding it on file:// just logs
+   a CORS error, so attach it here instead of hard-coding the link. */
+(function () {
+  var p = location.protocol;
+  if (p !== "http:" && p !== "https:") return;
+  var l = document.createElement("link");
+  l.rel = "manifest";
+  l.href = "manifest.json";
+  document.head.appendChild(l);
+})();
+</script>
 <title>Tap Counter</title>
 <style>
 /* ===================================================================
@@ -1590,6 +1603,23 @@ kbd {
   applySettings();
   render();
   refreshHistory();
+})();
+</script>
+
+<script>
+/* Offline support. Service workers need a secure context, so this is a no-op
+   when index.html is opened straight off the disk (file://) — the app still
+   works there, it just has nothing to cache. */
+(function () {
+  "use strict";
+  if (!("serviceWorker" in navigator)) return;
+  var secure = location.protocol === "https:" ||
+               location.hostname === "localhost" ||
+               location.hostname === "127.0.0.1";
+  if (!secure) return;
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("sw.js").catch(function () { /* offline support unavailable */ });
+  });
 })();
 </script>
 </body>
