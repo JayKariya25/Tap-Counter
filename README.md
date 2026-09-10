@@ -112,6 +112,10 @@ installable and available offline.
   update therefore reaches people on their next online visit — no stale-cache trap.
 - **Opened straight off the disk** (`file://`) everything still works; service workers and
   manifests need a real origin, so those simply don't attach there.
+- **Locked down by a Content-Security-Policy** of `default-src 'none'` with only same-origin
+  scripts, styles, images and worker allowed, `connect-src 'none'`, and no `form-action` or
+  `base-uri`. Nothing can be loaded from another site and nothing can be sent anywhere — the
+  app makes no network requests of its own by design.
 
 ## Browser support
 
@@ -126,9 +130,12 @@ and iOS installs through *Share → Add to Home Screen*.
 
 ## Data and privacy
 
-There is no server, no account and no analytics. Counts never leave the device — they're stored
-in that browser's local storage, so each device (and each site you host it on) keeps its own
-set. Use **Export / Import** to move counters between devices.
+There is no server, no account, no analytics and no third-party code. Counts never leave the
+device — they're stored in that browser's local storage, so each device (and each site you host
+it on) keeps its own set. Use **Export / Import** to move counters between devices.
+
+Imported files are treated as untrusted: every field is validated and coerced, and text only
+ever reaches the page through `textContent` and form values, never as HTML.
 
 ## Project structure
 

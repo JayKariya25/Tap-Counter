@@ -2,6 +2,10 @@
 <html lang="en" data-theme="auto">
 <head>
 <meta charset="utf-8">
+<!-- Defence in depth. The app loads nothing external and never talks to a network,
+     so the policy can forbid almost everything: no outside scripts, styles, images,
+     frames or connections, and no form posts or <base> hijacking. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Tap Counter — count anything with unlimited counters running at once. Works on any phone, tablet or laptop.">
 <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
