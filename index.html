@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Tap Counter — count anything with unlimited counters running at once. Works on any phone, tablet or laptop.">
+<meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0c11" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tap Counter">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232f5cff'/><circle cx='32' cy='32' r='17' fill='none' stroke='%23fff' stroke-width='5'/><circle cx='32' cy='32' r='5.5' fill='%23fff'/></svg>">
+<title>Tap Counter</title>
+<style>
+/* ===================================================================
+   Tokens
+   =================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+:root {
+  color-scheme: light;
+
+  --bg:          #f4f6fb;
+  --bg-a:        #ffffff;
+  --bg-b:        #e4ebfa;
+  --surface:     #ffffff;
+  --surface-2:   #f6f8fc;
+  --surface-3:   #eef2f9;
+  --text:        #0e1118;
+  --text-soft:   #39414f;
+  --muted:       #6a7383;
+  --border:      #e5e9f1;
+  --border-2:    #d3dae6;
+  --accent:      #2f5cff;
+  --accent-soft: #eaf0ff;
+  --accent-fg:   #ffffff;
+  --danger:      #d92d20;
+  --danger-bd:   #f3c4c0;
+  --ok:          #0f8f5f;
+  --ok-bd:       #9fdcc2;
+
+  --topbar-bg:   rgba(244, 246, 251, .78);
+  --tap-bg:      linear-gradient(180deg, #fbfcfe 0%, #eef2f9 100%);
+  --tap-bd:      #e3e8f2;
+
+  --shadow-sm:   0 1px 2px rgba(15, 23, 42, .05);
+  --shadow-md:   0 1px 2px rgba(15, 23, 42, .05), 0 10px 26px -8px rgba(15, 23, 42, .16);
+  --shadow-lg:   0 24px 60px -12px rgba(15, 23, 42, .28), 0 8px 20px -8px rgba(15, 23, 42, .18);
+  --shadow-pop:  0 2px 6px rgba(15, 23, 42, .08), 0 18px 40px -14px rgba(15, 23, 42, .30);
+
+  --pad: clamp(12px, 2.4vw, 32px);   /* shared page gutter */
+  --r-lg: 22px;
+  --r-md: 15px;
+  --r-sm: 11px;
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:          #0a0c11;
+  --bg-a:        #161b24;
+  --bg-b:        #0d1524;
+  --surface:     #151a22;
+  --surface-2:   #1b212b;
+  --surface-3:   #222935;
+  --text:        #eaeef6;
+  --text-soft:   #c2cbd9;
+  --muted:       #8d97a8;
+  --border:      #242b37;
+  --border-2:    #333c4c;
+  --accent:      #5b8bff;
+  --accent-soft: #17233f;
+  --accent-fg:   #06101f;
+  --danger:      #ff6b5e;
+  --danger-bd:   #5a2b2b;
+  --ok:          #35d69a;
+  --ok-bd:       #1e5a45;
+  --topbar-bg:   rgba(10, 12, 17, .78);
+  --tap-bg:      linear-gradient(180deg, #1d242f 0%, #161b24 100%);
+  --tap-bd:      #2a3240;
+  --shadow-sm:   0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-md:   0 1px 2px rgba(0, 0, 0, .4), 0 12px 30px -10px rgba(0, 0, 0, .6);
+  --shadow-lg:   0 28px 70px -14px rgba(0, 0, 0, .78), 0 10px 24px -10px rgba(0, 0, 0, .6);
+  --shadow-pop:  0 2px 8px rgba(0, 0, 0, .5), 0 20px 44px -16px rgba(0, 0, 0, .7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    color-scheme: dark;
+    --bg:          #0a0c11;
+    --bg-a:        #161b24;
+    --bg-b:        #0d1524;
+    --surface:     #151a22;
+    --surface-2:   #1b212b;
+    --surface-3:   #222935;
+    --text:        #eaeef6;
+    --text-soft:   #c2cbd9;
+    --muted:       #8d97a8;
+    --border:      #242b37;
+    --border-2:    #333c4c;
+    --accent:      #5b8bff;
+    --accent-soft: #17233f;
+    --accent-fg:   #06101f;
+    --danger:      #ff6b5e;
+    --danger-bd:   #5a2b2b;
+    --ok:          #35d69a;
+    --ok-bd:       #1e5a45;
+    --topbar-bg:   rgba(10, 12, 17, .78);
+    --tap-bg:      linear-gradient(180deg, #1d242f 0%, #161b24 100%);
+    --tap-bd:      #2a3240;
+    --shadow-sm:   0 1px 2px rgba(0, 0, 0, .4);
+    --shadow-md:   0 1px 2px rgba(0, 0, 0, .4), 0 12px 30px -10px rgba(0, 0, 0, .6);
+    --shadow-lg:   0 28px 70px -14px rgba(0, 0, 0, .78), 0 10px 24px -10px rgba(0, 0, 0, .6);
+    --shadow-pop:  0 2px 8px rgba(0, 0, 0, .5), 0 20px 44px -16px rgba(0, 0, 0, .7);
+  }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* keep scrollIntoView / focus from parking things under the sticky bar */
+  scroll-padding-top: calc(80px + env(safe-area-inset-top));
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(900px 520px at 8% -12%, var(--bg-a) 0%, transparent 62%),
+    radial-gradient(900px 520px at 104% -4%, var(--bg-b) 0%, transparent 58%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  overscroll-behavior-y: contain;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+.app {
+  width: 100%;
+  padding: 0 var(--pad) calc(48px + env(safe-area-inset-bottom));
+  padding-left:  max(var(--pad), env(safe-area-inset-left));
+  padding-right: max(var(--pad), env(safe-area-inset-right));
+}
+
+/* ===================================================================
+   Top bar
+   =================================================================== */
+.topbar {
+  position: sticky; top: 0; z-index: 30;
+  width: 100%;
+  background: var(--topbar-bg);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  backdrop-filter: saturate(180%) blur(16px);
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s ease;
+}
+.topbar.stuck { border-bottom-color: var(--border); }
+.topbar-inner {
+  display: flex; align-items: center; gap: 12px;
+  padding: calc(11px + env(safe-area-inset-top)) 0 11px;
+  padding-left:  max(var(--pad), env(safe-area-inset-left));
+  padding-right: max(var(--pad), env(safe-area-inset-right));
+}
+
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.logo {
+  position: relative;
+  width: 44px; height: 44px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 14px;
+  background: linear-gradient(150deg, #4f7bff 0%, #2f5cff 45%, #7c4dff 100%);
+  color: #fff; font-size: 21px; line-height: 1;
+  box-shadow: 0 4px 14px -4px rgba(47, 92, 255, .65), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.brand h1 {
+  margin: 0;
+  font-size: clamp(1.06rem, 3.4vw, 1.28rem);
+  font-weight: 700; letter-spacing: -.025em; white-space: nowrap;
+}
+.sub {
+  margin: 1px 0 0; font-size: .8rem; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: inline-block;
+}
+.sub b { color: var(--text-soft); font-weight: 700; font-variant-numeric: tabular-nums; }
+.sub.bump { animation: bump .32s cubic-bezier(.2,.9,.3,1.3); }
+@keyframes bump { 0%,100% { transform: none; } 40% { transform: translateY(-2px); } }
+
+/* segmented toggle group */
+.seg {
+  display: flex; flex: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.seg .icon-btn { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.seg .icon-btn + .icon-btn { border-left: 1px solid var(--border); }
+
+/* ===================================================================
+   Buttons
+   =================================================================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-height: 44px; padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: .92rem; font-weight: 620; letter-spacing: -.01em;
+  box-shadow: var(--shadow-sm);
+  transition: transform .09s cubic-bezier(.3,.8,.4,1), background .16s ease, border-color .16s ease, box-shadow .16s ease, opacity .16s ease;
+  white-space: nowrap;
+  user-select: none; -webkit-user-select: none;
+}
+.btn:active { transform: scale(.965); }
+.btn.primary {
+  background: linear-gradient(180deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 86%, #000) 100%);
+  background-color: var(--accent);
+  color: var(--accent-fg); border-color: transparent;
+  box-shadow: 0 1px 2px rgba(15,23,42,.16), 0 8px 20px -8px rgba(47,92,255,.7);
+}
+.btn.ghost { background: transparent; box-shadow: none; }
+.btn.sm { min-height: 38px; padding: 0 12px; font-size: .84rem; border-radius: var(--r-sm); }
+.btn.danger { color: var(--danger); border-color: var(--danger-bd); }
+.btn[disabled] { opacity: .4; pointer-events: none; }
+@media (hover: hover) {
+  .btn:hover { border-color: var(--border-2); }
+  .btn.ghost:hover { background: var(--surface-2); }
+  .btn.primary:hover { filter: brightness(1.06); }
+}
+
+.icon-btn {
+  width: 44px; height: 44px; flex: none;
+  display: grid; place-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-size: 1.02rem; line-height: 1;
+  box-shadow: var(--shadow-sm);
+  transition: transform .09s ease, background .16s ease, opacity .16s ease;
+  user-select: none; -webkit-user-select: none;
+}
+.icon-btn:active { transform: scale(.92); }
+.icon-btn.off { opacity: .35; }
+#undoBtn, #redoBtn { font-size: 1.32rem; }
+.icon-btn.tiny {
+  width: 34px; height: 34px; font-size: .92rem;
+  border-radius: var(--r-sm); box-shadow: none;
+  background: transparent; border-color: transparent; color: var(--muted);
+}
+.card-head .del { opacity: .62; }
+.card-head .del:active { opacity: 1; }
+@media (hover: hover) {
+  .seg .icon-btn:hover { background: var(--surface-2); }
+  .icon-btn.tiny:hover { background: var(--surface-3); color: var(--text); }
+  .card-head .del:hover { opacity: 1; color: var(--danger); border-color: var(--danger-bd); }
+}
+
+/* ===================================================================
+   Toolbar
+   =================================================================== */
+.toolbar {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 8px;
+  padding: 10px 0 16px;
+}
+.tgroup { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ===================================================================
+   Counter grid
+   =================================================================== */
+.grid {
+  display: grid;
+  gap: clamp(11px, 1.7vw, 17px);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 262px), 1fr));
+  align-items: stretch;
+}
+@media (min-width: 1560px) { .grid { grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)); } }
+
+.card {
+  position: relative;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  container-type: inline-size;
+  transition: transform .18s cubic-bezier(.2,.9,.3,1.1), box-shadow .18s ease, border-color .18s ease;
+  animation: cardIn .3s cubic-bezier(.2,.9,.3,1.15) both;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(9px) scale(.985); } }
+@media (hover: hover) {
+  .card:hover { transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+}
+.card::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 3px;
+  background: linear-gradient(90deg, var(--c, var(--accent)) 0%, var(--c, var(--accent)) 45%, transparent 100%);
+  opacity: .95;
+}
+.card.reached { border-color: var(--ok-bd); }
+
+.card-head { display: flex; align-items: center; gap: 2px; padding: 15px 7px 9px 15px; }
+.card-head .name { margin-right: 4px; }
+.dot {
+  width: 9px; height: 9px; flex: none; border-radius: 50%;
+  background: var(--c, var(--accent));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--accent)) 18%, transparent);
+}
+.name {
+  flex: 1; min-width: 0;
+  border: 1px solid transparent; background: transparent;
+  padding: 5px 8px; border-radius: var(--r-sm);
+  font-size: .95rem; font-weight: 650; letter-spacing: -.015em;
+  text-overflow: ellipsis;
+}
+@media (hover: hover) { .name:hover { border-color: var(--border); } }
+.name:focus { border-color: var(--accent); background: var(--surface-2); outline: none; }
+
+/* ---------- the tap pad ---------- */
+.tapzone {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
+  flex: 1 1 auto;
+  width: calc(100% - 22px);
+  margin: 2px 11px 11px;
+  min-height: clamp(124px, 19vh, 192px);
+  padding: 16px 12px;
+  border: 1px solid var(--tap-bd);
+  border-radius: var(--r-md);
+  background: var(--tap-bg);
+  overflow: hidden;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+  transition: transform .08s cubic-bezier(.3,.8,.4,1), border-color .22s ease, box-shadow .22s ease;
+}
+/* the counter's own colour washes over the pad on every tap */
+.tapzone::after {
+  content: ""; position: absolute; inset: 0;
+  background: var(--c, var(--accent));
+  opacity: 0; pointer-events: none;
+  transition: opacity .34s cubic-bezier(.2,.7,.3,1);
+}
+.tapzone.flash::after { opacity: .20; transition: opacity .045s linear; }
+.tapzone.flash {
+  border-color: var(--c, var(--accent));
+  box-shadow: inset 0 0 0 1px var(--c, var(--accent));
+  transition: border-color .045s linear, box-shadow .045s linear;
+}
+.tapzone:active { transform: scale(.982); }
+.tapzone > * { position: relative; z-index: 2; }
+.card.locked .tapzone { cursor: not-allowed; opacity: .58; }
+.card.locked .tapzone:active { transform: none; }
+
+.tapzone .value {
+  font-size: 2.7rem;
+  font-size: clamp(2.1rem, 27cqi, 4rem);
+  font-weight: 800; letter-spacing: -.045em; line-height: 1.02;
+  font-variant-numeric: tabular-nums;
+  transition: color .25s ease;
+}
+.card.reached .tapzone .value { color: var(--ok); }
+.tapzone .hint {
+  font-size: .655rem; font-weight: 750; letter-spacing: .17em;
+  text-transform: uppercase; color: var(--muted);
+}
+.tapzone.pop .value { animation: pop .19s cubic-bezier(.3,.9,.4,1.4); }
+@keyframes pop { 0% { transform: scale(1); } 42% { transform: scale(1.14); } 100% { transform: scale(1); } }
+
+.float {
+  position: absolute; z-index: 3; pointer-events: none;
+  font-size: .95rem; font-weight: 800;
+  color: var(--c, var(--accent));
+  transform: translate(-50%, -50%);
+  animation: floatUp .66s cubic-bezier(.2,.7,.3,1) forwards;
+  font-variant-numeric: tabular-nums;
+}
+@keyframes floatUp {
+  0%   { opacity: 0; transform: translate(-50%, -40%) scale(.65); }
+  22%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -205%) scale(1.16); }
+}
+.ripple {
+  position: absolute; z-index: 1; pointer-events: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--c, var(--accent));
+  transform: translate(-50%, -50%);
+  animation: rip .55s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes rip {
+  0%   { opacity: .34; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0;   transform: translate(-50%,-50%) scale(18); }
+}
+
+/* ---------- progress ---------- */
+.progress { display: flex; align-items: center; gap: 10px; padding: 0 15px 11px; }
+.bar {
+  flex: 1; height: 6px; border-radius: 99px;
+  background: var(--surface-3); overflow: hidden;
+}
+.bar i {
+  display: block; height: 100%; width: 0%; border-radius: 99px;
+  background: var(--c, var(--accent));
+  transition: width .32s cubic-bezier(.2,.8,.3,1);
+}
+.card.reached .bar i { background: var(--ok); }
+.ptext {
+  font-size: .715rem; font-weight: 700; color: var(--muted);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+
+/* ---------- card actions ---------- */
+.card-actions { display: flex; gap: 8px; padding: 0 11px 12px; }
+.card-actions .btn { flex: 1; min-height: 42px; padding: 0 8px; }
+.card-actions .sq { flex: 0 0 50px; font-size: 1.3rem; font-weight: 700; }
+
+/* ---------- per-counter settings ---------- */
+.panel {
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  padding: 13px 15px 15px;
+  display: grid; gap: 11px;
+  animation: panelIn .2s ease both;
+}
+@keyframes panelIn { from { opacity: 0; transform: translateY(-4px); } }
+.panel .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.panel label {
+  display: grid; gap: 5px;
+  font-size: .68rem; font-weight: 750; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+.panel input[type="number"] {
+  min-height: 40px; padding: 0 11px;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  background: var(--surface); font-size: .92rem; font-weight: 620;
+  width: 100%; font-variant-numeric: tabular-nums;
+}
+.panel input[type="number"]:focus { border-color: var(--accent); outline: none; }
+.panel .check {
+  display: flex; align-items: center; gap: 10px; min-height: 34px;
+  font-size: .84rem; text-transform: none; letter-spacing: 0;
+  font-weight: 620; color: var(--text);
+}
+.panel .check input { width: 22px; height: 22px; flex: none; accent-color: var(--accent); }
+.swatches { display: flex; gap: 7px; flex-wrap: wrap; }
+.swatch {
+  width: 25px; height: 25px; border-radius: 50%; padding: 0;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.14);
+  transition: transform .12s ease;
+}
+.swatch:active { transform: scale(.9); }
+.swatch[aria-pressed="true"] { border-color: var(--text); }
+.panel-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.panel-actions .btn { flex: 1 1 auto; }
+
+/* ---------- empty state ---------- */
+.empty {
+  text-align: center; color: var(--muted);
+  border: 1.5px dashed var(--border-2); border-radius: var(--r-lg);
+  padding: 54px 22px; margin: 0; font-size: .95rem;
+  background: var(--surface-2);
+}
+.empty .big { display: block; font-size: 2rem; margin-bottom: 8px; opacity: .5; }
+
+/* ===================================================================
+   Focus mode — one counter, whole screen
+   =================================================================== */
+.focus {
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; flex-direction: column;
+  background: #0a0c11;
+  color: #fff;
+  animation: focusIn .26s cubic-bezier(.2,.9,.3,1.05) both;
+  overscroll-behavior: contain;
+}
+@keyframes focusIn { from { opacity: 0; transform: scale(1.03); } }
+.focus::before {
+  content: ""; position: absolute; inset: 0;
+  background: var(--c, #2f5cff); opacity: .26; pointer-events: none;
+}
+.focus::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(115% 78% at 50% 6%, rgba(255,255,255,.20) 0%, transparent 62%);
+}
+.focus-inner {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  height: 100%;
+  padding: calc(12px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
+}
+.focus-top { display: flex; align-items: center; gap: 10px; }
+.focus-name {
+  flex: 1; min-width: 0;
+  font-size: 1rem; font-weight: 700; letter-spacing: -.02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: rgba(255,255,255,.95);
+}
+.glass {
+  background: rgba(255,255,255,.14) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+@media (hover: hover) { .glass:hover { background: rgba(255,255,255,.22) !important; } }
+
+.focus-tap {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px;
+  margin: 12px 0;
+  width: 100%;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 26px;
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  overflow: hidden;
+  user-select: none; -webkit-user-select: none;
+  -webkit-touch-callout: none; touch-action: manipulation;
+  transition: transform .08s cubic-bezier(.3,.8,.4,1), background .3s ease;
+}
+.focus-tap::after {
+  content: ""; position: absolute; inset: 0; background: #fff;
+  opacity: 0; pointer-events: none;
+  transition: opacity .34s cubic-bezier(.2,.7,.3,1);
+}
+.focus-tap.flash::after { opacity: .17; transition: opacity .045s linear; }
+.focus-tap:active { transform: scale(.99); }
+.focus-tap:focus-visible { outline: 2px solid rgba(255,255,255,.85); outline-offset: -6px; }
+.focus-tap > * { position: relative; z-index: 2; }
+/* on the dark focus stage the feedback reads white, not the counter colour */
+#focusTap .float  { color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.4); }
+#focusTap .ripple { background: #fff; }
+.focus-value {
+  font-size: clamp(4rem, 26vw, 12rem);
+  font-weight: 800; letter-spacing: -.05em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 6px 40px rgba(0,0,0,.35);
+}
+.focus-value.pop { animation: pop .19s cubic-bezier(.3,.9,.4,1.4); }
+.focus-hint {
+  font-size: .7rem; font-weight: 750; letter-spacing: .19em;
+  text-transform: uppercase; color: rgba(255,255,255,.72);
+}
+.focus-progress { display: flex; align-items: center; gap: 11px; padding: 0 2px 12px; }
+.focus-progress .bar { background: rgba(255,255,255,.2); height: 7px; }
+.focus-progress .bar i { background: #fff; }
+.focus-progress .ptext { color: rgba(255,255,255,.85); font-size: .78rem; }
+.focus-actions { display: flex; gap: 9px; }
+.focus-actions .btn { flex: 1; min-height: 54px; font-size: 1rem; border-radius: var(--r-md); }
+.focus-actions .sq { flex: 0 0 74px; font-size: 1.5rem; }
+
+/* ===================================================================
+   Footer, toast, dialog
+   =================================================================== */
+.foot {
+  margin-top: 30px; padding-top: 17px;
+  border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .78rem;
+}
+.foot .keys { display: flex; flex-wrap: wrap; gap: 7px 15px; }
+kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .72rem; padding: 2px 6px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-bottom-width: 2px; color: var(--text-soft);
+}
+@media (hover: none) { .foot .keys { display: none; } }
+
+.toast {
+  position: fixed; left: 50%; z-index: 80;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 22px);
+  max-width: min(92vw, 440px);
+  padding: 12px 20px; border-radius: 999px;
+  background: var(--text); color: var(--bg);
+  font-size: .87rem; font-weight: 650; text-align: center;
+  box-shadow: var(--shadow-lg);
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s ease, transform .22s cubic-bezier(.2,.9,.3,1.1);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.overlay {
+  position: fixed; inset: 0; z-index: 90;
+  display: grid; place-items: center; padding: 20px;
+  background: rgba(8, 10, 14, .55);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  animation: fade .16s ease both;
+}
+@keyframes fade { from { opacity: 0; } }
+.dialog {
+  width: min(100%, 430px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 24px;
+  animation: dlgIn .24s cubic-bezier(.2,.9,.3,1.12) both;
+}
+@keyframes dlgIn { from { opacity: 0; transform: translateY(16px) scale(.95); } }
+.dialog h2 { margin: 0 0 7px; font-size: 1.12rem; letter-spacing: -.025em; }
+.dialog p { margin: 0 0 19px; color: var(--muted); font-size: .9rem; }
+.dialog .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.dialog .actions .btn { flex: 1 1 120px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">◎</span>
+      <div style="min-width:0">
+        <h1>Tap Counter</h1>
+        <p class="sub" id="subline">0 counters · 0 total</p>
+      </div>
+    </div>
+    <div class="seg">
+      <button class="icon-btn" id="soundBtn"  type="button" aria-label="Toggle sound feedback">🔊</button>
+      <button class="icon-btn" id="hapticBtn" type="button" aria-label="Toggle vibration">⚡</button>
+      <button class="icon-btn" id="themeBtn"  type="button" aria-label="Change theme">🌗</button>
+    </div>
+  </div>
+</header>
+
+<div class="app">
+
+  <div class="toolbar">
+    <div class="tgroup">
+      <button class="btn primary" id="addBtn"  type="button">＋ Add counter</button>
+      <button class="icon-btn"    id="undoBtn" type="button" aria-label="Undo" title="Undo" disabled>↶</button>
+      <button class="icon-btn"    id="redoBtn" type="button" aria-label="Redo" title="Redo" disabled>↷</button>
+    </div>
+    <div class="tgroup">
+      <button class="btn"       id="resetAllBtn" type="button">⟳ Reset all</button>
+      <button class="btn ghost" id="exportBtn"   type="button">⇩ Export</button>
+      <button class="btn ghost" id="importBtn"   type="button">⇧ Import</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+    </div>
+  </div>
+
+  <main class="grid" id="grid" aria-label="Counters"></main>
+  <p class="empty" id="empty" hidden>
+    <span class="big" aria-hidden="true">◎</span>
+    No counters yet — tap <strong>＋ Add counter</strong> to create one.
+  </p>
+
+  <footer class="foot">
+    <div class="keys">
+      <span><kbd>N</kbd> new counter</span>
+      <span><kbd>1</kbd>–<kbd>9</kbd> tap that counter</span>
+      <span><kbd>F</kbd> focus mode</span>
+      <span><kbd>⌘/Ctrl</kbd>+<kbd>Z</kbd> undo</span>
+      <span><kbd>⇧</kbd>+<kbd>Z</kbd> redo</span>
+      <span><kbd>R</kbd> reset all</span>
+      <span><kbd>T</kbd> theme</span>
+    </div>
+    <p style="margin:11px 0 0">Everything saves automatically in this browser — close the tab and your counts stay.</p>
+  </footer>
+</div>
+
+<!-- full-screen single counter -->
+<div class="focus" id="focus" hidden role="dialog" aria-modal="true" aria-label="Focus mode">
+  <div class="focus-inner">
+    <div class="focus-top">
+      <span class="focus-name" id="focusName"></span>
+      <button class="icon-btn glass" id="focusClose" type="button" aria-label="Exit focus mode">✕</button>
+    </div>
+    <button class="focus-tap" id="focusTap" type="button">
+      <span class="focus-value" id="focusValue">0</span>
+      <span class="focus-hint"  id="focusHint">Tap anywhere</span>
+    </button>
+    <div class="focus-progress" id="focusProgress" hidden>
+      <div class="bar"><i id="focusBar"></i></div>
+      <span class="ptext" id="focusPtext"></span>
+    </div>
+    <div class="focus-actions">
+      <button class="btn glass sq" id="focusMinus" type="button" aria-label="Decrease">−</button>
+      <button class="btn glass"    id="focusReset" type="button">Reset</button>
+      <button class="btn glass sq" id="focusPlus"  type="button" aria-label="Increase">+</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="overlay" id="overlay" hidden></div>
+
+<template id="cardTpl">
+  <article class="card">
+    <div class="card-head">
+      <span class="dot" aria-hidden="true"></span>
+      <input class="name" type="text" maxlength="32" spellcheck="false" autocomplete="off" aria-label="Counter name">
+      <button class="icon-btn tiny expand" type="button" aria-label="Open in focus mode" title="Focus mode">⤢</button>
+      <button class="icon-btn tiny gear"   type="button" aria-label="Counter options" aria-expanded="false">⚙</button>
+      <button class="icon-btn tiny del"    type="button" aria-label="Delete counter" title="Delete counter">🗑</button>
+    </div>
+
+    <button class="tapzone" type="button">
+      <span class="value">0</span>
+      <span class="hint">Tap</span>
+    </button>
+
+    <div class="progress" hidden>
+      <div class="bar"><i></i></div>
+      <span class="ptext"></span>
+    </div>
+
+    <div class="card-actions">
+      <button class="btn sq minus" type="button" aria-label="Decrease">−</button>
+      <button class="btn reset"    type="button">Reset</button>
+      <button class="btn sq plus"  type="button" aria-label="Increase">+</button>
+    </div>
+
+    <div class="panel" hidden>
+      <div class="fields">
+        <label>Step
+          <input class="step" type="number" min="1" max="1000000" step="1" inputmode="numeric">
+        </label>
+        <label>Target
+          <input class="target" type="number" min="0" max="1000000000" step="1" inputmode="numeric" placeholder="none">
+        </label>
+      </div>
+      <div class="swatches" role="group" aria-label="Counter colour"></div>
+      <label class="check"><input class="lock" type="checkbox"> Lock — ignore taps</label>
+      <div class="panel-actions">
+        <button class="btn ghost sm moveL" type="button">← Move</button>
+        <button class="btn ghost sm moveR" type="button">Move →</button>
+        <button class="btn ghost sm dup"   type="button">⧉ Duplicate</button>
+      </div>
+    </div>
+  </article>
+</template>
+<script>
+(function () {
+  "use strict";
+
+  /* ============================ Constants ============================ */
+  const STORE_KEY = "tapCounter.v1";
+  const MAX_COUNT = 1e12;
+  const MIN_COUNT = -1e12;
+  const MAX_HISTORY = 200;
+  const MAX_COUNTERS = 500;
+  const PALETTE = ["#2f5cff","#7c4dff","#d926a9","#e11d48","#ea580c","#c2960c","#16a34a","#0891b2"];
+  const THEMES = ["auto","light","dark"];
+  const THEME_ICON = { auto: "🌗", light: "☀️", dark: "🌙" };
+
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const nf = new Intl.NumberFormat();
+  const clampCount = n => Math.max(MIN_COUNT, Math.min(MAX_COUNT, n));
+  const docEl = document.documentElement;
+
+  /* ============================ State ============================ */
+  function makeCounter(id, name, colorIndex) {
+    return {
+      id: id, name: name, count: 0, step: 1, target: 0,
+      locked: false, color: PALETTE[colorIndex % PALETTE.length], taps: 0
+    };
+  }
+
+  function defaultState() {
+    return {
+      v: 1, nextId: 2,
+      settings: { theme: "auto", sound: false, haptics: true },
+      counters: [makeCounter(1, "Counter 1", 0)]
+    };
+  }
+
+  function sanitizeCounter(raw, fallbackId, index) {
+    if (!raw || typeof raw !== "object") return null;
+    const id = Number.isFinite(+raw.id) ? Math.floor(+raw.id) : fallbackId;
+    const c = makeCounter(id, "Counter", index);
+    c.name = (typeof raw.name === "string" && raw.name.trim())
+      ? raw.name.slice(0, 32) : "Counter " + (index + 1);
+    c.count  = Number.isFinite(+raw.count)  ? clampCount(Math.round(+raw.count)) : 0;
+    c.step   = Number.isFinite(+raw.step)   ? Math.max(1, Math.min(1e6, Math.round(+raw.step))) : 1;
+    c.target = Number.isFinite(+raw.target) ? Math.max(0, Math.min(1e9, Math.round(+raw.target))) : 0;
+    c.locked = !!raw.locked;
+    c.taps   = Number.isFinite(+raw.taps) ? Math.max(0, Math.round(+raw.taps)) : 0;
+    c.color  = (typeof raw.color === "string" && /^#[0-9a-f]{6}$/i.test(raw.color))
+      ? raw.color : PALETTE[index % PALETTE.length];
+    return c;
+  }
+
+  function normalize(raw) {
+    const s = defaultState();
+    if (!raw || typeof raw !== "object") return s;
+
+    if (raw.settings && typeof raw.settings === "object") {
+      if (THEMES.indexOf(raw.settings.theme) !== -1) s.settings.theme = raw.settings.theme;
+      s.settings.sound   = !!raw.settings.sound;
+      s.settings.haptics = raw.settings.haptics !== false;
+    }
+
+    if (Array.isArray(raw.counters)) {
+      const seen = Object.create(null);
+      let auto = 1;
+      s.counters = raw.counters
+        .map((r, i) => sanitizeCounter(r, auto++, i))
+        .filter(Boolean)
+        .slice(0, MAX_COUNTERS);
+      s.counters.forEach(c => {
+        while (seen[c.id]) c.id += 1;
+        seen[c.id] = true;
+      });
+    }
+
+    const maxId = s.counters.reduce((m, c) => Math.max(m, c.id), 0);
+    s.nextId = Math.max(Number.isFinite(+raw.nextId) ? Math.floor(+raw.nextId) : 1, maxId + 1);
+    return s;
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      return raw ? normalize(JSON.parse(raw)) : defaultState();
+    } catch (err) {
+      console.warn("Tap Counter: could not read saved data —", err);
+      return defaultState();
+    }
+  }
+
+  let state = load();
+  let saveTimer = null, storageWarned = false;
+
+  function persist() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+    catch (err) {
+      if (!storageWarned) { storageWarned = true; toast("Couldn’t save — storage is unavailable here"); }
+    }
+  }
+  function save() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => { saveTimer = null; persist(); }, 250);
+  }
+  function flush() {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    persist();
+  }
+
+  /* ============================ Undo / redo ============================ */
+  const undoStack = [], redoStack = [];
+  const snap = () => JSON.stringify({ counters: state.counters, nextId: state.nextId });
+
+  function snapshot() {
+    undoStack.push(snap());
+    if (undoStack.length > MAX_HISTORY) undoStack.shift();
+    redoStack.length = 0;
+    refreshHistory();
+  }
+  function applySnap(str) {
+    const s2 = JSON.parse(str);
+    state.counters = normalize({ counters: s2.counters, nextId: s2.nextId, settings: state.settings }).counters;
+    state.nextId = s2.nextId;
+  }
+  function refreshHistory() {
+    undoBtn.disabled = undoStack.length === 0;
+    redoBtn.disabled = redoStack.length === 0;
+  }
+  function undo() {
+    if (!undoStack.length) return;
+    try { redoStack.push(snap()); applySnap(undoStack.pop()); }
+    catch (e) { return; }
+    refreshHistory(); render(); save(); toast("Undone");
+  }
+  function redo() {
+    if (!redoStack.length) return;
+    try { undoStack.push(snap()); applySnap(redoStack.pop()); }
+    catch (e) { return; }
+    refreshHistory(); render(); save(); toast("Redone");
+  }
+
+  /* ============================ Feedback ============================ */
+  let audioCtx = null;
+  function beep(kind) {
+    if (!state.settings.sound) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(kind === "down" ? 420 : kind === "done" ? 980 : 660, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.09, now + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.13);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(now); osc.stop(now + 0.15);
+    } catch (e) { /* no audio here */ }
+  }
+  function buzz(ms) {
+    if (!state.settings.haptics) return;
+    try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
+  }
+
+  let toastTimer = null;
+  const toastEl = $("#toast");
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1900);
+  }
+
+  /* The colour wash: the pad briefly takes on the counter's own colour. */
+  function flashPad(el) {
+    if (!el) return;
+    el.classList.remove("flash");
+    void el.offsetWidth;                       // restart the transition
+    el.classList.add("flash");
+    clearTimeout(el._flashTimer);
+    el._flashTimer = setTimeout(() => el.classList.remove("flash"), 95);
+  }
+
+  function burst(pad, clientX, clientY, label) {
+    if (!pad) return;
+    flashPad(pad);
+    if (pad.querySelectorAll(".float").length >= 12) return;
+    const rect = pad.getBoundingClientRect();
+    const x = clientX == null ? rect.width / 2 : clientX - rect.left;
+    const y = clientY == null ? rect.height / 2 : clientY - rect.top;
+
+    const rip = document.createElement("span");
+    rip.className = "ripple";
+    rip.style.left = x + "px"; rip.style.top = y + "px";
+    pad.appendChild(rip);
+    rip.addEventListener("animationend", () => rip.remove());
+
+    const f = document.createElement("span");
+    f.className = "float";
+    f.textContent = label;
+    f.style.left = x + "px"; f.style.top = y + "px";
+    pad.appendChild(f);
+    f.addEventListener("animationend", () => f.remove());
+  }
+
+  /* A pointer gesture fires pointerdown AND a follow-up click; count the
+     pointerdown (instant) and swallow that one click. Keyboard activation
+     fires click alone, so it still counts exactly once. */
+  function wireTap(pad, handler) {
+    let swallow = false, timer = 0;
+    pad.addEventListener("pointerdown", e => {
+      if (e.button !== 0) return;
+      swallow = true;
+      clearTimeout(timer);
+      timer = setTimeout(() => { swallow = false; }, 800);
+      handler(e.clientX, e.clientY);
+    });
+    pad.addEventListener("click", () => {
+      if (swallow) { swallow = false; clearTimeout(timer); return; }
+      handler(null, null);
+    });
+    pad.addEventListener("contextmenu", e => e.preventDefault());
+    pad.addEventListener("dragstart", e => e.preventDefault());
+  }
+
+  /* ============================ Dialog ============================ */
+  const overlay = $("#overlay");
+  let closeDialog = null;
+
+  function dialog(opts) {
+    return new Promise(resolve => {
+      if (closeDialog) closeDialog(null);
+      const prevFocus = document.activeElement;
+
+      const box = document.createElement("div");
+      box.className = "dialog";
+      box.setAttribute("role", "dialog");
+      box.setAttribute("aria-modal", "true");
+
+      const h = document.createElement("h2");
+      h.textContent = opts.title;
+      box.appendChild(h);
+      if (opts.message) {
+        const p = document.createElement("p");
+        p.textContent = opts.message;
+        box.appendChild(p);
+      }
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      box.appendChild(actions);
+
+      opts.buttons.forEach((b, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn" + (b.variant ? " " + b.variant : "");
+        btn.textContent = b.label;
+        btn.addEventListener("click", () => done(b.value));
+        actions.appendChild(btn);
+        if (i === opts.buttons.length - 1) setTimeout(() => btn.focus(), 0);
+      });
+
+      overlay.textContent = "";
+      overlay.appendChild(box);
+      overlay.hidden = false;
+
+      function onKey(e) {
+        if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); done(null); }
+        else if (e.key === "Tab") {
+          const f = box.querySelectorAll("button");
+          if (!f.length) return;
+          const first = f[0], last = f[f.length - 1];
+          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+      }
+      function onBackdrop(e) { if (e.target === overlay) done(null); }
+
+      document.addEventListener("keydown", onKey, true);
+      overlay.addEventListener("mousedown", onBackdrop);
+
+      function done(val) {
+        document.removeEventListener("keydown", onKey, true);
+        overlay.removeEventListener("mousedown", onBackdrop);
+        overlay.hidden = true;
+        overlay.textContent = "";
+        closeDialog = null;
+        if (prevFocus && prevFocus.focus) {
+          try { prevFocus.focus({ preventScroll: true }); } catch (e) {}
+        }
+        resolve(val);
+      }
+      closeDialog = done;
+    });
+  }
+
+  const confirmDlg = (title, message, okLabel, variant) =>
+    dialog({
+      title: title, message: message,
+      buttons: [
+        { label: "Cancel", value: false, variant: "ghost" },
+        { label: okLabel || "OK", value: true, variant: variant || "primary" }
+      ]
+    });
+
+  /* ============================ Elements ============================ */
+  const grid    = $("#grid");
+  const tpl     = $("#cardTpl");
+  const emptyEl = $("#empty");
+  const subline = $("#subline");
+  const undoBtn = $("#undoBtn");
+  const redoBtn = $("#redoBtn");
+  const views   = new Map();
+
+  const focusEl       = $("#focus");
+  const focusName     = $("#focusName");
+  const focusValue    = $("#focusValue");
+  const focusHint     = $("#focusHint");
+  const focusTap      = $("#focusTap");
+  const focusProgress = $("#focusProgress");
+  const focusBar      = $("#focusBar");
+  const focusPtext    = $("#focusPtext");
+  let focusId = null;
+
+  const byId = id => { for (const c of state.counters) if (c.id === id) return c; return null; };
+  const indexOf = id => { for (let i = 0; i < state.counters.length; i++) if (state.counters[i].id === id) return i; return -1; };
+
+  /* ============================ Render ============================ */
+  function render() {
+    grid.textContent = "";
+    views.clear();
+    const frag = document.createDocumentFragment();
+    state.counters.forEach(c => frag.appendChild(buildCard(c)));
+    grid.appendChild(frag);
+    emptyEl.hidden = state.counters.length > 0;
+    updateStats();
+    if (focusId !== null) {
+      const c = byId(focusId);
+      if (c) syncFocus(c); else closeFocus();
+    }
+  }
+
+  function updateStats() {
+    const n = state.counters.length;
+    const total = state.counters.reduce((s, c) => s + c.count, 0);
+    subline.textContent = "";
+    subline.appendChild(document.createTextNode(n + (n === 1 ? " counter · " : " counters · ")));
+    const b = document.createElement("b");
+    b.textContent = nf.format(total);
+    subline.appendChild(b);
+    subline.appendChild(document.createTextNode(" total"));
+    subline.classList.remove("bump");
+    void subline.offsetWidth;
+    subline.classList.add("bump");
+  }
+
+  function buildCard(c) {
+    const root = tpl.content.firstElementChild.cloneNode(true);
+    const v = {
+      root: root,
+      value:    $(".value", root),
+      tap:      $(".tapzone", root),
+      hint:     $(".hint", root),
+      progress: $(".progress", root),
+      bar:      $(".bar i", root),
+      ptext:    $(".ptext", root),
+      name:     $(".name", root),
+      step:     $(".step", root),
+      target:   $(".target", root),
+      lock:     $(".lock", root),
+      panel:    $(".panel", root),
+      gear:     $(".gear", root),
+      expand:   $(".expand", root)
+    };
+    views.set(c.id, v);
+    root.style.setProperty("--c", c.color);
+    v.name.value   = c.name;
+    v.step.value   = c.step;
+    v.target.value = c.target ? c.target : "";
+    v.lock.checked = c.locked;
+
+    v.name.addEventListener("input", () => {
+      c.name = v.name.value.slice(0, 32);
+      updateAria(c); syncFocus(c); save();
+    });
+    v.name.addEventListener("blur", () => {
+      if (!c.name.trim()) {
+        c.name = "Counter " + (indexOf(c.id) + 1);
+        v.name.value = c.name; syncFocus(c); save();
+      }
+    });
+    v.name.addEventListener("keydown", e => { if (e.key === "Enter") v.name.blur(); });
+
+    wireTap(v.tap, (x, y) => tap(c, x, y, v.tap));
+
+    $(".plus",  root).addEventListener("click", () => { snapshot(); change(c,  c.step, "up"); });
+    $(".minus", root).addEventListener("click", () => { snapshot(); change(c, -c.step, "down"); });
+    $(".reset", root).addEventListener("click", () => resetOne(c));
+    v.expand.addEventListener("click", () => openFocus(c.id));
+
+    v.gear.addEventListener("click", () => {
+      const open = v.panel.hidden;
+      v.panel.hidden = !open;
+      v.gear.setAttribute("aria-expanded", String(open));
+      v.gear.textContent = open ? "✕" : "⚙";
+    });
+
+    v.step.addEventListener("change", () => {
+      const n = Math.round(Number(v.step.value));
+      c.step = Number.isFinite(n) ? Math.max(1, Math.min(1e6, n)) : 1;
+      v.step.value = c.step;
+      updateCard(c); save();
+    });
+    v.target.addEventListener("change", () => {
+      const raw = v.target.value.trim();
+      const n = Math.round(Number(raw));
+      c.target = (raw === "" || !Number.isFinite(n) || n <= 0) ? 0 : Math.min(1e9, n);
+      v.target.value = c.target ? c.target : "";
+      updateCard(c); save();
+    });
+    v.lock.addEventListener("change", () => {
+      c.locked = v.lock.checked;
+      root.classList.toggle("locked", c.locked);
+      updateCard(c); save();
+      toast(c.locked ? "Counter locked" : "Counter unlocked");
+    });
+
+    const sw = $(".swatches", root);
+    PALETTE.forEach(col => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "swatch";
+      b.style.background = col;
+      b.setAttribute("aria-label", "Colour " + col);
+      b.setAttribute("aria-pressed", String(col.toLowerCase() === c.color.toLowerCase()));
+      b.addEventListener("click", () => {
+        c.color = col;
+        root.style.setProperty("--c", col);
+        if (focusId === c.id) focusEl.style.setProperty("--c", col);
+        Array.prototype.forEach.call(sw.children, el => el.setAttribute("aria-pressed", String(el === b)));
+        save();
+      });
+      sw.appendChild(b);
+    });
+
+    $(".moveL", root).addEventListener("click", () => move(c, -1));
+    $(".moveR", root).addEventListener("click", () => move(c, 1));
+    $(".dup",   root).addEventListener("click", () => duplicate(c));
+    $(".del",   root).addEventListener("click", async () => {
+      const ok = await confirmDlg("Delete “" + c.name + "”?",
+        "This removes the counter and its count of " + nf.format(c.count) + ". You can undo this.",
+        "Delete", "danger");
+      if (!ok) return;
+      const i = indexOf(c.id);
+      if (i === -1) return;
+      snapshot();
+      state.counters.splice(i, 1);
+      render(); save();
+      toast("Counter deleted");
+    });
+
+    root.classList.toggle("locked", c.locked);
+    updateCard(c);
+    return root;
+  }
+
+  function updateAria(c) {
+    const v = views.get(c.id);
+    if (!v) return;
+    v.tap.setAttribute("aria-label",
+      (c.name || "Counter") + ": " + nf.format(c.count) +
+      (c.locked ? " (locked)" : ", tap to add " + nf.format(c.step)));
+  }
+
+  function updateCard(c) {
+    const v = views.get(c.id);
+    if (v) {
+      v.value.textContent = nf.format(c.count);
+      v.hint.textContent = c.locked ? "🔒 Locked" : (c.step > 1 ? "Tap +" + nf.format(c.step) : "Tap");
+      if (c.target > 0) {
+        const pct = Math.max(0, Math.min(100, (c.count / c.target) * 100));
+        v.progress.hidden = false;
+        v.bar.style.width = pct + "%";
+        v.ptext.textContent = Math.round(pct) + "% of " + nf.format(c.target);
+        v.root.classList.toggle("reached", c.count >= c.target);
+      } else {
+        v.progress.hidden = true;
+        v.root.classList.remove("reached");
+      }
+      updateAria(c);
+    }
+    syncFocus(c);
+  }
+
+  /* ============================ Focus mode ============================ */
+  function openFocus(id) {
+    const c = byId(id);
+    if (!c) return;
+    focusId = id;
+    focusEl.style.setProperty("--c", c.color);
+    focusEl.hidden = false;
+    docEl.style.overflow = "hidden";
+    syncFocus(c);
+    setTimeout(() => { try { focusTap.focus({ preventScroll: true }); } catch (e) {} }, 0);
+  }
+
+  function closeFocus() {
+    if (focusId === null) return;
+    const id = focusId;
+    focusId = null;
+    focusEl.hidden = true;
+    docEl.style.overflow = "";
+    const v = views.get(id);
+    if (v && v.expand) { try { v.expand.focus({ preventScroll: true }); } catch (e) {} }
+  }
+
+  function syncFocus(c) {
+    if (focusId === null || !c || c.id !== focusId) return;
+    focusName.textContent = c.name || "Counter";
+    focusValue.textContent = nf.format(c.count);
+    focusHint.textContent = c.locked ? "🔒 Locked"
+      : (c.step > 1 ? "Tap anywhere · +" + nf.format(c.step) : "Tap anywhere");
+    if (c.target > 0) {
+      const pct = Math.max(0, Math.min(100, (c.count / c.target) * 100));
+      focusProgress.hidden = false;
+      focusBar.style.width = pct + "%";
+      focusPtext.textContent = Math.round(pct) + "% of " + nf.format(c.target);
+    } else {
+      focusProgress.hidden = true;
+    }
+  }
+
+  wireTap(focusTap, (x, y) => { const c = byId(focusId); if (c) tap(c, x, y, focusTap); });
+  $("#focusClose").addEventListener("click", closeFocus);
+  $("#focusPlus").addEventListener("click", () => { const c = byId(focusId); if (c) { snapshot(); change(c,  c.step, "up"); } });
+  $("#focusMinus").addEventListener("click", () => { const c = byId(focusId); if (c) { snapshot(); change(c, -c.step, "down"); } });
+  $("#focusReset").addEventListener("click", () => { const c = byId(focusId); if (c) resetOne(c); });
+
+  /* ============================ Actions ============================ */
+  function change(c, delta, kind) {
+    if (c.locked) return false;
+    const before = c.count;
+    c.count = clampCount(c.count + delta);
+    if (c.count === before) return false;
+    if (delta > 0) c.taps += 1;
+
+    const v = views.get(c.id);
+    if (v) { v.tap.classList.remove("pop"); void v.tap.offsetWidth; v.tap.classList.add("pop"); }
+    if (focusId === c.id) {
+      focusValue.classList.remove("pop"); void focusValue.offsetWidth; focusValue.classList.add("pop");
+    }
+
+    const wasReached = c.target > 0 && before >= c.target;
+    updateCard(c);
+    updateStats();
+    save();
+
+    if (c.target > 0 && !wasReached && c.count >= c.target) {
+      beep("done"); buzz([18, 45, 18]);
+      toast("🎉 “" + c.name + "” reached " + nf.format(c.target));
+    } else {
+      beep(kind); buzz(14);
+    }
+    return true;
+  }
+
+  function tap(c, clientX, clientY, pad) {
+    if (c.locked) { buzz(40); toast("“" + c.name + "” is locked"); return; }
+    snapshot();
+    if (!change(c, c.step, "up")) return;
+    burst(pad || (views.get(c.id) || {}).tap, clientX, clientY, "+" + nf.format(c.step));
+  }
+
+  async function resetOne(c) {
+    if (c.count === 0 && c.taps === 0) { toast("Already at zero"); return; }
+    const ok = await confirmDlg("Reset “" + c.name + "”?",
+      "Its count goes back to 0. You can undo this.", "Reset", "danger");
+    if (!ok) return;
+    snapshot();
+    c.count = 0; c.taps = 0;
+    const v = views.get(c.id);
+    if (v) v.root.classList.remove("reached");
+    updateCard(c); updateStats(); save();
+    toast("Counter reset");
+  }
+
+  function addCounter() {
+    if (state.counters.length >= MAX_COUNTERS) { toast("Maximum of " + MAX_COUNTERS + " counters reached"); return; }
+    snapshot();
+    const c = makeCounter(state.nextId++, "Counter " + (state.counters.length + 1), state.counters.length);
+    state.counters.push(c);
+    render(); save();
+    const v = views.get(c.id);
+    if (v) {
+      v.root.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      try { v.tap.focus({ preventScroll: true }); } catch (e) {}
+    }
+  }
+
+  function duplicate(c) {
+    if (state.counters.length >= MAX_COUNTERS) { toast("Maximum of " + MAX_COUNTERS + " counters reached"); return; }
+    snapshot();
+    const copy = JSON.parse(JSON.stringify(c));
+    copy.id = state.nextId++;
+    copy.name = (c.name + " copy").slice(0, 32);
+    copy.count = 0; copy.taps = 0;
+    state.counters.splice(indexOf(c.id) + 1, 0, copy);
+    render(); save();
+    toast("Counter duplicated");
+  }
+
+  function move(c, dir) {
+    const i = indexOf(c.id), j = i + dir;
+    if (i === -1 || j < 0 || j >= state.counters.length) { toast("Already at the end"); return; }
+    snapshot();
+    const arr = state.counters, tmp = arr[i];
+    arr[i] = arr[j]; arr[j] = tmp;
+    render(); save();
+    const v = views.get(c.id);
+    if (v) {
+      v.panel.hidden = false;
+      v.gear.textContent = "✕";
+      v.gear.setAttribute("aria-expanded", "true");
+      v.root.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  async function resetAll() {
+    if (!state.counters.length) { toast("Nothing to reset"); return; }
+    const total = state.counters.reduce((s, c) => s + c.count, 0);
+    if (total === 0 && state.counters.every(c => c.taps === 0)) { toast("Everything is already at zero"); return; }
+    const ok = await confirmDlg("Reset all counters?",
+      "All " + state.counters.length + " counters go back to 0 (total " + nf.format(total) +
+      "). Names and settings are kept, and you can undo this.", "Reset all", "danger");
+    if (!ok) return;
+    snapshot();
+    state.counters.forEach(c => { c.count = 0; c.taps = 0; });
+    render(); save();
+    toast("All counters reset");
+  }
+
+  /* ============================ Export / import ============================ */
+  function download(filename, text, mime) {
+    try {
+      const blob = new Blob([text], { type: mime + ";charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      toast("Saved " + filename);
+    } catch (e) { toast("Download isn’t supported here"); }
+  }
+
+  function stamp() {
+    const d = new Date(), p = n => String(n).padStart(2, "0");
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "_" + p(d.getHours()) + p(d.getMinutes());
+  }
+
+  async function exportData() {
+    if (!state.counters.length) { toast("Nothing to export"); return; }
+    const choice = await dialog({
+      title: "Export counters",
+      message: "JSON can be imported back later. CSV opens in Excel, Numbers or Sheets.",
+      buttons: [
+        { label: "Cancel", value: null,  variant: "ghost" },
+        { label: "CSV",    value: "csv", variant: "" },
+        { label: "JSON",   value: "json", variant: "primary" }
+      ]
+    });
+    if (!choice) return;
+
+    if (choice === "json") {
+      download("tap-counter_" + stamp() + ".json", JSON.stringify({
+        v: 1, exportedAt: new Date().toISOString(), counters: state.counters, nextId: state.nextId
+      }, null, 2), "application/json");
+    } else {
+      const esc = s => '"' + String(s).replace(/"/g, '""') + '"';
+      const rows = [["Name", "Count", "Step", "Target", "Taps", "Locked"].join(",")];
+      state.counters.forEach(c =>
+        rows.push([esc(c.name), c.count, c.step, c.target || "", c.taps, c.locked ? "yes" : "no"].join(",")));
+      rows.push([esc("TOTAL"), state.counters.reduce((s, c) => s + c.count, 0), "", "", "", ""].join(","));
+      download("tap-counter_" + stamp() + ".csv", rows.join("\r\n"), "text/csv");
+    }
+  }
+
+  const importFile = $("#importFile");
+  $("#importBtn").addEventListener("click", () => { importFile.value = ""; importFile.click(); });
+  importFile.addEventListener("change", () => {
+    const file = importFile.files && importFile.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onerror = () => toast("Couldn’t read that file");
+    reader.onload = async () => {
+      let incoming;
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        const list = Array.isArray(parsed) ? parsed : parsed.counters;
+        if (!Array.isArray(list) || !list.length) throw new Error("no counters");
+        incoming = normalize({ counters: list, nextId: 1, settings: state.settings }).counters;
+        if (!incoming.length) throw new Error("no valid counters");
+      } catch (e) {
+        toast("That file isn’t a valid Tap Counter export");
+        return;
+      }
+      const mode = await dialog({
+        title: "Import " + incoming.length + (incoming.length === 1 ? " counter" : " counters"),
+        message: "Add them to your current counters, or replace everything you have now?",
+        buttons: [
+          { label: "Cancel",  value: null,      variant: "ghost" },
+          { label: "Replace", value: "replace", variant: "danger" },
+          { label: "Add",     value: "merge",   variant: "primary" }
+        ]
+      });
+      if (!mode) return;
+      snapshot();
+      incoming.forEach(c => { c.id = state.nextId++; });
+      state.counters = mode === "replace" ? incoming : state.counters.concat(incoming).slice(0, MAX_COUNTERS);
+      render(); save();
+      toast(mode === "replace" ? "Counters replaced" : incoming.length + " counters added");
+    };
+    reader.readAsText(file);
+  });
+
+  /* ============================ Settings ============================ */
+  const themeBtn = $("#themeBtn"), soundBtn = $("#soundBtn"), hapticBtn = $("#hapticBtn");
+
+  function applySettings() {
+    docEl.setAttribute("data-theme", state.settings.theme);
+    themeBtn.textContent = THEME_ICON[state.settings.theme];
+    themeBtn.title = "Theme: " + state.settings.theme;
+    soundBtn.classList.toggle("off", !state.settings.sound);
+    soundBtn.setAttribute("aria-pressed", String(state.settings.sound));
+    soundBtn.title = state.settings.sound ? "Sound on" : "Sound off";
+    hapticBtn.classList.toggle("off", !state.settings.haptics);
+    hapticBtn.setAttribute("aria-pressed", String(state.settings.haptics));
+    hapticBtn.title = state.settings.haptics ? "Vibration on" : "Vibration off";
+    hapticBtn.hidden = !("vibrate" in navigator);
+  }
+
+  function cycleTheme() {
+    state.settings.theme = THEMES[(THEMES.indexOf(state.settings.theme) + 1) % THEMES.length];
+    applySettings(); save();
+    toast("Theme: " + state.settings.theme);
+  }
+
+  themeBtn.addEventListener("click", cycleTheme);
+  soundBtn.addEventListener("click", () => {
+    state.settings.sound = !state.settings.sound;
+    applySettings(); save();
+    if (state.settings.sound) beep("up");
+    toast(state.settings.sound ? "Sound on" : "Sound off");
+  });
+  hapticBtn.addEventListener("click", () => {
+    state.settings.haptics = !state.settings.haptics;
+    applySettings(); save();
+    if (state.settings.haptics) buzz(20);
+    toast(state.settings.haptics ? "Vibration on" : "Vibration off");
+  });
+
+  $("#addBtn").addEventListener("click", addCounter);
+  $("#resetAllBtn").addEventListener("click", resetAll);
+  $("#exportBtn").addEventListener("click", exportData);
+  undoBtn.addEventListener("click", undo);
+  redoBtn.addEventListener("click", redo);
+
+  /* ============================ Keyboard ============================ */
+  document.addEventListener("keydown", e => {
+    if (!overlay.hidden) return;                       // dialog owns the keyboard
+    const t = e.target;
+    const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable);
+
+    /* Escape is checked before the typing guard: it must always be able to
+       leave focus mode, and it should let go of a name field being edited. */
+    if (e.key === "Escape") {
+      if (focusId !== null) { e.preventDefault(); closeFocus(); return; }
+      if (typing && t.blur) { t.blur(); return; }
+    }
+
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
+      e.preventDefault();
+      e.shiftKey ? redo() : undo();
+      return;
+    }
+    if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+
+    const k = e.key.toLowerCase();
+    if (k === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+
+    if (focusId !== null) return;                      // focus mode keeps it simple
+
+    if (k === "n") { e.preventDefault(); addCounter(); }
+    else if (k === "r") { e.preventDefault(); resetAll(); }
+    else if (k === "t") { e.preventDefault(); cycleTheme(); }
+    else if (k === "f") {
+      e.preventDefault();
+      const first = state.counters[0];
+      if (first) openFocus(first.id); else toast("Add a counter first");
+    }
+    else if (k >= "1" && k <= "9") {
+      const c = state.counters[Number(k) - 1];
+      if (c) {
+        e.preventDefault();
+        tap(c, null, null, null);
+        const v = views.get(c.id);
+        if (v) v.root.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  });
+
+  /* ============================ Lifecycle ============================ */
+  const topbar = $("#topbar");
+  window.addEventListener("scroll", () => {
+    topbar.classList.toggle("stuck", window.scrollY > 4);
+  }, { passive: true });
+
+  window.addEventListener("pagehide", flush);
+  window.addEventListener("beforeunload", flush);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) flush(); });
+
+  window.addEventListener("storage", e => {
+    if (e.key !== STORE_KEY || !e.newValue) return;
+    try {
+      const incoming = normalize(JSON.parse(e.newValue));
+      state.counters = incoming.counters;
+      state.nextId = incoming.nextId;
+      render();
+    } catch (err) {}
+  });
+
+  applySettings();
+  render();
+  refreshHistory();
+})();
+</script>
+</body>
+</html>
